@@ -29,7 +29,6 @@
       padding-bottom: 30px;
     }
 
-    /* Fixed Clean Header with Dedicated Action Bar */
     header {
       background: #fff;
       padding: 12px 14px 10px;
@@ -43,24 +42,66 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .header-title {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
+    }
+
+    /* Date Selector Bar */
+    .date-bar-container {
+      background: #f8f9fa;
+      border: 1.5px solid #dadce0;
+      border-radius: 10px;
+      padding: 6px 10px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .date-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--subtext);
+    }
+
+    .date-picker-input {
+      font-size: 15px;
+      font-weight: 700;
+      border: 1px solid #c2e7ff;
+      border-radius: 6px;
+      padding: 5px 8px;
+      background: #fff;
+      color: var(--primary);
+      outline: none;
+      font-family: inherit;
+    }
+
+    .btn-today {
+      background: #e8f0fe;
+      color: var(--primary);
+      border: 1px solid #aecbfa;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     .header-action-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
 
     .btn-top-bar {
       border: none;
-      padding: 11px 4px;
-      border-radius: 9px;
+      padding: 10px 4px;
+      border-radius: 8px;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
@@ -69,12 +110,6 @@
       justify-content: center;
       gap: 4px;
       text-align: center;
-    }
-
-    .btn-archive-top {
-      background: #fef7e0;
-      color: #b06000;
-      border: 1.5px solid #fce8b2;
     }
 
     .btn-report-top {
@@ -299,7 +334,6 @@
       word-break: break-word;
     }
 
-    /* Modal Backdrop */
     .modal-backdrop {
       display: none;
       position: fixed;
@@ -330,15 +364,6 @@
       text-align: left;
     }
 
-    .modal-box.archive-box {
-      max-width: 440px;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      text-align: left;
-      padding: 16px;
-    }
-
     .modal-title {
       font-size: 18px;
       font-weight: 700;
@@ -348,7 +373,7 @@
     .report-textarea {
       width: 100%;
       flex: 1;
-      min-height: 180px;
+      min-height: 200px;
       border: 1.5px solid #dadce0;
       border-radius: 10px;
       padding: 12px;
@@ -383,115 +408,30 @@
       gap: 6px;
     }
 
-    .btn-save-archive { background: #34a853; color: #fff; }
     .btn-pdf { background: #c5221f; color: #fff; }
     .btn-copy { background: var(--primary); color: #fff; }
     .btn-cancel { background: #f1f3f4; color: var(--text); font-weight: 600; }
     .btn-confirm { background: var(--danger); color: #fff; margin-top: 8px; }
-
-    /* Calendar Styling */
-    .calendar-controls {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .cal-select {
-      flex: 1;
-      padding: 10px;
-      font-size: 15px;
-      font-weight: 600;
-      border: 1.5px solid #dadce0;
-      border-radius: 8px;
-      background: #fff;
-      outline: none;
-    }
-
-    .calendar-weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      font-weight: 700;
-      font-size: 12px;
-      color: var(--subtext);
-      margin-bottom: 6px;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      margin-bottom: 14px;
-    }
-
-    .cal-day {
-      aspect-ratio: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #f8f9fa;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      position: relative;
-      border: 1.5px solid transparent;
-    }
-
-    .cal-day.empty {
-      background: transparent;
-      cursor: default;
-    }
-
-    .cal-day.has-report {
-      background: #e8f0fe;
-      border-color: #1a73e8;
-      color: #1a73e8;
-      font-weight: 800;
-    }
-
-    .cal-day.has-report::after {
-      content: '●';
-      font-size: 8px;
-      color: #1a73e8;
-      position: absolute;
-      bottom: 2px;
-    }
-
-    .cal-day.selected {
-      background: #1a73e8 !important;
-      color: #fff !important;
-    }
-
-    .cal-day.selected::after {
-      color: #fff !important;
-    }
-
-    .saved-report-preview {
-      background: #f1f3f4;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 13px;
-      max-height: 160px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-      font-family: monospace;
-      margin-bottom: 12px;
-    }
   </style>
 </head>
 <body>
 
-  <!-- ALWAYS-VISIBLE HEADER WITH 3 LARGE ACTION BUTTONS -->
   <header>
     <div class="header-top-row">
       <div class="header-title">Доставка</div>
     </div>
+    
+    <!-- DATE PICKER ROW -->
+    <div class="date-bar-container">
+      <span class="date-label">📅 Дата:</span>
+      <input type="date" id="selected-date-input" class="date-picker-input" onchange="handleDateChange()">
+      <button class="btn-today" onclick="setTodayDate()">Сегодня</button>
+    </div>
+
+    <!-- ACTION BUTTONS -->
     <div class="header-action-grid">
-      <button class="btn-top-bar btn-archive-top" onclick="openArchiveModal()">📅 Архив</button>
       <button class="btn-top-bar btn-report-top" onclick="generateReport()">📋 Отчёт</button>
-      <button class="btn-top-bar btn-reset-top" onclick="askReset()">🗑️ Сброс</button>
+      <button class="btn-top-bar btn-reset-top" onclick="askReset()">🗑️ Сбросить день</button>
     </div>
   </header>
 
@@ -571,10 +511,9 @@
   <!-- REPORT MODAL -->
   <div class="modal-backdrop" id="report-modal">
     <div class="modal-box report-box">
-      <div class="modal-title">Итоговый отчёт</div>
+      <div class="modal-title" id="report-modal-title">Итоговый отчёт</div>
       <textarea id="report-text" class="report-textarea" readonly></textarea>
       <div class="report-actions">
-        <button class="btn-action-modal btn-save-archive" id="btn-save-archive" onclick="saveCurrentReportToArchive()">💾 Сохранить отчёт в архив</button>
         <button class="btn-action-modal btn-pdf" id="btn-dl-pdf" onclick="downloadPdfFromCurrent()">📥 Скачать PDF файл</button>
         <button class="btn-action-modal btn-copy" id="btn-copy-report" onclick="copyReport()">Скопировать текст</button>
         <button class="btn-action-modal btn-cancel" onclick="closeReportModal()">Закрыть</button>
@@ -582,43 +521,15 @@
     </div>
   </div>
 
-  <!-- ARCHIVE MODAL WITH CALENDAR -->
-  <div class="modal-backdrop" id="archive-modal">
-    <div class="modal-box archive-box">
-      <div class="modal-title">Архив отчётов</div>
-      
-      <div class="calendar-controls">
-        <select id="cal-month" class="cal-select" onchange="renderCalendar()"></select>
-        <select id="cal-year" class="cal-select" onchange="renderCalendar()"></select>
-      </div>
-
-      <div class="calendar-weekdays">
-        <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
-      </div>
-      <div id="calendar-grid" class="calendar-grid"></div>
-
-      <div id="archive-report-area" style="display:none; flex-direction:column; flex:1;">
-        <div style="font-weight:700; font-size:14px; margin-bottom:6px;" id="selected-date-label"></div>
-        <div id="archive-preview" class="saved-report-preview"></div>
-        <div style="display:flex; gap:6px; margin-bottom:8px;">
-          <button class="btn-action-modal btn-pdf" style="flex:1;" onclick="downloadArchivePdf()">PDF</button>
-          <button class="btn-action-modal btn-copy" style="flex:1;" onclick="copyArchiveReport()">Копировать</button>
-        </div>
-      </div>
-
-      <button class="btn-action-modal btn-cancel" style="margin-top:auto;" onclick="closeArchiveModal()">Закрыть</button>
-    </div>
-  </div>
-
   <!-- RESET MODAL -->
   <div class="modal-backdrop" id="reset-modal">
     <div class="modal-box">
-      <div class="modal-title">Сбросить всё?</div>
-      <div style="font-size:14px; color:var(--subtext); margin-bottom:16px;">
-        Все адреса вернутся в белый цвет, удалятся заметки и время. Архив сохранённых отчётов останется.
+      <div class="modal-title">Сбросить этот день?</div>
+      <div style="font-size:14px; color:var(--subtext); margin-bottom:16px;" id="reset-modal-desc">
+        Все адреса за выбранную дату вернутся в белый цвет.
       </div>
       <button class="btn-action-modal btn-cancel" onclick="closeResetModal()">Отмена</button>
-      <button class="btn-action-modal btn-confirm" onclick="confirmReset()">Да, сбросить всё</button>
+      <button class="btn-action-modal btn-confirm" onclick="confirmReset()">Да, сбросить</button>
     </div>
   </div>
 
@@ -654,22 +565,57 @@
     let searchQuery = '';
     let selectedStopId = null;
     let commentStopId = null;
-    let stateData = JSON.parse(localStorage.getItem('route_color_data') || '{}');
-    let archiveData = JSON.parse(localStorage.getItem('route_archive_reports') || '{}');
 
-    function getNowFormatted() {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('ru-RU');
-      const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-      return `${dateStr} ${timeStr}`;
-    }
+    // Daily storage architecture: { "YYYY-MM-DD": { [id]: { color, completedAt, departedAt, comment } } }
+    let allDaysData = JSON.parse(localStorage.getItem('route_daily_all_data') || '{}');
+    let activeDateKey = getTodayIsoDate();
 
-    function getTodayKey() {
+    function getTodayIsoDate() {
       const d = new Date();
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       return `${y}-${m}-${day}`;
+    }
+
+    function formatIsoToDisplay(isoStr) {
+      const [y, m, d] = isoStr.split('-');
+      return `${d}.${m}.${y}`;
+    }
+
+    function getNowTimeFormatted() {
+      const now = new Date();
+      return now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function getCurrentDayState() {
+      if (!allDaysData[activeDateKey]) {
+        allDaysData[activeDateKey] = {};
+      }
+      return allDaysData[activeDateKey];
+    }
+
+    function saveCurrentDayState() {
+      localStorage.setItem('route_daily_all_data', JSON.stringify(allDaysData));
+    }
+
+    function initDatePicker() {
+      const input = document.getElementById('selected-date-input');
+      input.value = activeDateKey;
+    }
+
+    function handleDateChange() {
+      const input = document.getElementById('selected-date-input');
+      if (input.value) {
+        activeDateKey = input.value;
+        renderList();
+      }
+    }
+
+    function setTodayDate() {
+      activeDateKey = getTodayIsoDate();
+      document.getElementById('selected-date-input').value = activeDateKey;
+      renderList();
     }
 
     function getSortPriority(color) {
@@ -682,6 +628,7 @@
     function renderList() {
       const container = document.getElementById('addresses-container');
       const countEl = document.getElementById('results-count');
+      const stateData = getCurrentDayState();
       container.innerHTML = '';
 
       let items = [...stops];
@@ -691,7 +638,7 @@
         items = items.filter(s => s.address.toLowerCase().includes(query));
       }
 
-      countEl.innerText = `Найдено адресов: ${items.length} из ${stops.length}`;
+      countEl.innerText = `Найдено адресов: ${items.length} из ${stops.length} (${formatIsoToDisplay(activeDateKey)})`;
 
       if (items.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding: 40px 10px; color:#5f6368; font-size:15px;">Ничего не найдено</div>`;
@@ -757,9 +704,15 @@
     }
 
     function navigateTo(id, encodedAddress) {
+      const stateData = getCurrentDayState();
       const existing = stateData[id] || { color: 'white', completedAt: null, comment: '' };
-      stateData[id] = { ...existing, departedAt: getNowFormatted() };
-      localStorage.setItem('route_color_data', JSON.stringify(stateData));
+      
+      stateData[id] = { 
+        ...existing, 
+        departedAt: `${formatIsoToDisplay(activeDateKey)} ${getNowTimeFormatted()}` 
+      };
+      saveCurrentDayState();
+
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`, '_blank');
       renderList();
     }
@@ -776,7 +729,6 @@
       input.value = '';
       searchQuery = '';
       document.getElementById('btn-clear').style.display = 'none';
-      input.focus();
       renderList();
     }
 
@@ -792,19 +744,24 @@
 
     function applyColor(color) {
       if (selectedStopId === null) return;
+      const stateData = getCurrentDayState();
       const existing = stateData[selectedStopId] || { color: 'white', comment: '', departedAt: null };
+      
       let completedAt = null;
       if (color === 'green') {
-        completedAt = getNowFormatted();
+        completedAt = `${formatIsoToDisplay(activeDateKey)} ${getNowTimeFormatted()}`;
       }
+
       stateData[selectedStopId] = { ...existing, color: color, completedAt: completedAt };
-      localStorage.setItem('route_color_data', JSON.stringify(stateData));
+      saveCurrentDayState();
+
       closeColorModal();
       clearSearch();
     }
 
     function openCommentModal(id) {
       commentStopId = id;
+      const stateData = getCurrentDayState();
       document.getElementById('comment-input').value = (stateData[id] && stateData[id].comment) || '';
       document.getElementById('comment-modal').classList.add('show');
     }
@@ -817,9 +774,12 @@
     function saveComment() {
       if (commentStopId === null) return;
       const text = document.getElementById('comment-input').value.trim();
+      const stateData = getCurrentDayState();
       const existing = stateData[commentStopId] || { color: 'white', completedAt: null, departedAt: null };
+      
       stateData[commentStopId] = { ...existing, comment: text };
-      localStorage.setItem('route_color_data', JSON.stringify(stateData));
+      saveCurrentDayState();
+
       closeCommentModal();
       renderList();
     }
@@ -830,7 +790,8 @@
       red: 'Не сделано / Отключено'
     };
 
-    function getActiveStops() {
+    function getActiveStopsForDay() {
+      const stateData = getCurrentDayState();
       return stops.filter(s => {
         const data = stateData[s.id];
         return data && (data.color === 'yellow' || data.color === 'red' || data.color === 'green');
@@ -838,14 +799,17 @@
     }
 
     function generateReport() {
-      const activeStops = getActiveStops();
+      const activeStops = getActiveStopsForDay();
+      const stateData = getCurrentDayState();
+      const formattedDate = formatIsoToDisplay(activeDateKey);
+
       if (activeStops.length === 0) {
-        alert("Нет обработанных адресов (зелёных, жёлтых или красных).");
+        alert(`Нет обработанных адресов за ${formattedDate}.`);
         return;
       }
 
       let reportText = `ОТЧЁТ ПО ДОСТАВКЕ\n`;
-      reportText += `Дата формирования: ${getNowFormatted()}\n`;
+      reportText += `Дата маршрута: ${formattedDate}\n`;
       reportText += `Всего обработано адресов: ${activeStops.length}\n`;
       reportText += `----------------------------------------\n\n`;
 
@@ -861,9 +825,9 @@
         reportText += `   Заметка: ${data.comment || 'Нет'}\n\n`;
       });
 
+      document.getElementById('report-modal-title').innerText = `Итоговый отчёт (${formattedDate})`;
       document.getElementById('report-text').value = reportText;
       document.getElementById('btn-copy-report').innerText = 'Скопировать текст';
-      document.getElementById('btn-save-archive').innerText = '💾 Сохранить отчёт в архив';
       document.getElementById('report-modal').classList.add('show');
     }
 
@@ -880,28 +844,19 @@
       });
     }
 
-    function saveCurrentReportToArchive() {
-      const text = document.getElementById('report-text').value;
-      const today = getTodayKey();
-      archiveData[today] = {
-        dateStr: getNowFormatted(),
-        content: text,
-        activeStops: getActiveStops().map(s => ({
-          address: s.address,
-          ...stateData[s.id]
-        }))
-      };
-      localStorage.setItem('route_archive_reports', JSON.stringify(archiveData));
-      document.getElementById('btn-save-archive').innerText = 'Сохранено в архив! ✓';
-      setTimeout(() => { document.getElementById('btn-save-archive').innerText = '💾 Сохранить отчёт в архив'; }, 2000);
-    }
-
     function downloadPdfFromCurrent() {
-      const activeStops = getActiveStops();
-      exportPdfFromList(activeStops, getNowFormatted(), `Otchet_Dostavka_${new Date().toISOString().slice(0, 10)}.pdf`);
+      const activeStops = getActiveStopsForDay();
+      const stateData = getCurrentDayState();
+      const formattedDate = formatIsoToDisplay(activeDateKey);
+
+      const itemsForExport = activeStops.map(s => ({
+        address: s.address,
+        ...stateData[s.id]
+      }));
+
+      exportPdfFromList(itemsForExport, formattedDate, `Otchet_Dostavka_${activeDateKey}.pdf`);
     }
 
-    /* Core Canvas-to-PDF Generator */
     function exportPdfFromList(items, dateTitle, filename) {
       if (!items || items.length === 0) return;
       try {
@@ -1010,133 +965,8 @@
       }
     }
 
-    /* Archive & Calendar Logic */
-    const monthNames = [
-      "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-      "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-    ];
-
-    let currentArchiveKey = null;
-
-    function openArchiveModal() {
-      initCalendarSelectors();
-      renderCalendar();
-      document.getElementById('archive-modal').classList.add('show');
-    }
-
-    function closeArchiveModal() {
-      document.getElementById('archive-modal').classList.remove('show');
-    }
-
-    function initCalendarSelectors() {
-      const monthSel = document.getElementById('cal-month');
-      const yearSel = document.getElementById('cal-year');
-
-      if (monthSel.options.length === 0) {
-        monthNames.forEach((name, i) => {
-          const opt = document.createElement('option');
-          opt.value = i;
-          opt.innerText = name;
-          monthSel.appendChild(opt);
-        });
-
-        const curYear = new Date().getFullYear();
-        for (let y = curYear - 2; y <= curYear + 2; y++) {
-          const opt = document.createElement('option');
-          opt.value = y;
-          opt.innerText = y;
-          yearSel.appendChild(opt);
-        }
-
-        const now = new Date();
-        monthSel.value = now.getMonth();
-        yearSel.value = now.getFullYear();
-      }
-    }
-
-    function renderCalendar() {
-      const month = parseInt(document.getElementById('cal-month').value);
-      const year = parseInt(document.getElementById('cal-year').value);
-      const grid = document.getElementById('calendar-grid');
-      grid.innerHTML = '';
-      hideArchivePreview();
-
-      const firstDay = new Date(year, month, 1);
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      let startOffset = firstDay.getDay() - 1;
-      if (startOffset === -1) startOffset = 6;
-
-      for (let i = 0; i < startOffset; i++) {
-        const emptyCell = document.createElement('div');
-        emptyCell.className = 'cal-day empty';
-        grid.appendChild(emptyCell);
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const cell = document.createElement('div');
-        cell.className = 'cal-day';
-        cell.innerText = day;
-
-        const mStr = String(month + 1).padStart(2, '0');
-        const dStr = String(day).padStart(2, '0');
-        const key = `${year}-${mStr}-${dStr}`;
-
-        if (archiveData[key]) {
-          cell.classList.add('has-report');
-        }
-
-        cell.onclick = () => selectArchiveDay(key, cell);
-        grid.appendChild(cell);
-      }
-    }
-
-    function selectArchiveDay(key, cellElement) {
-      document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected'));
-      cellElement.classList.add('selected');
-      currentArchiveKey = key;
-
-      const area = document.getElementById('archive-report-area');
-      const label = document.getElementById('selected-date-label');
-      const preview = document.getElementById('archive-preview');
-
-      area.style.display = 'flex';
-      const parts = key.split('-');
-      label.innerText = `Отчёт за ${parts[2]}.${parts[1]}.${parts[0]}:`;
-
-      if (archiveData[key]) {
-        preview.innerText = archiveData[key].content;
-      } else {
-        preview.innerText = 'В этот день отчёт не был сохранён.';
-      }
-    }
-
-    function hideArchivePreview() {
-      document.getElementById('archive-report-area').style.display = 'none';
-      currentArchiveKey = null;
-    }
-
-    function downloadArchivePdf() {
-      if (!currentArchiveKey || !archiveData[currentArchiveKey]) {
-        alert("Нет сохранённого отчёта за этот день.");
-        return;
-      }
-      const data = archiveData[currentArchiveKey];
-      exportPdfFromList(data.activeStops || [], data.dateStr, `Otchet_Arhiv_${currentArchiveKey}.pdf`);
-    }
-
-    function copyArchiveReport() {
-      if (!currentArchiveKey || !archiveData[currentArchiveKey]) {
-        alert("Нет отчёта для копирования.");
-        return;
-      }
-      navigator.clipboard.writeText(archiveData[currentArchiveKey].content).then(() => {
-        alert("Отчёт из архива скопирован!");
-      });
-    }
-
-    /* Reset Logic */
     function askReset() {
+      document.getElementById('reset-modal-desc').innerText = `Все адреса за ${formatIsoToDisplay(activeDateKey)} вернутся в белый цвет. Другие дни не пострадают.`;
       document.getElementById('reset-modal').classList.add('show');
     }
 
@@ -1145,12 +975,13 @@
     }
 
     function confirmReset() {
-      stateData = {};
-      localStorage.removeItem('route_color_data');
+      delete allDaysData[activeDateKey];
+      saveCurrentDayState();
       closeResetModal();
       clearSearch();
     }
 
+    initDatePicker();
     renderList();
   </script>
 </body>
