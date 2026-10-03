@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Маршрут доставки</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --danger: #d93025;
+      --gray-bg: #f1f3f4;
+      --text: #202124;
+      --subtext: #5f6368;
+      
+      --c-white: #ffffff;
+      --c-yellow: #fbc02d;
+      --c-red: #e53935;
+      --c-green: #2e7d32;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--gray-bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      padding-bottom: 30px;
+    }
+
+    /* Fixed Clean Header with Dedicated Action Bar */
+    header {
+      background: #fff;
+      padding: 12px 14px 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .header-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .header-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-top-bar {
+      border: none;
+      padding: 11px 4px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .btn-archive-top {
+      background: #fef7e0;
+      color: #b06000;
+      border: 1.5px solid #fce8b2;
+    }
+
+    .btn-report-top {
+      background: #e8f0fe;
+      color: var(--primary);
+      border: 1.5px solid #c2e7ff;
+    }
+
+    .btn-reset-top {
+      background: #fce8e6;
+      color: var(--danger);
+      border: 1.5px solid #fad2cf;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 12px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 50px;
+      padding: 12px 42px 12px 16px;
+      font-size: 17px;
+      border: 2px solid #dadce0;
+      border-radius: 12px;
+      outline: none;
+      background: #fff;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    .btn-clear-search {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #dadce0;
+      border: none;
+      font-weight: 700;
+      color: #555;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .legend-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1.5px solid #bbb;
+      flex-shrink: 0;
+    }
+
+    .results-count {
+      font-size: 13px;
+      color: var(--subtext);
+      margin-bottom: 10px;
+      font-weight: 600;
+      padding: 0 4px;
+    }
+
+    .addr-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border-left: 6px solid #bdbdbd;
+    }
+
+    .addr-card.status-green  { border-left-color: var(--c-green); background: #f1f8e9; }
+    .addr-card.status-yellow { border-left-color: var(--c-yellow); background: #fffde7; }
+    .addr-card.status-red    { border-left-color: var(--c-red); background: #ffebee; }
+    .addr-card.status-white  { border-left-color: #bdbdbd; background: #ffffff; }
+
+    .addr-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .addr-index {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--subtext);
+      padding-top: 2px;
+    }
+
+    .addr-text {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.3;
+      flex: 1;
+    }
+
+    .card-bottom-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .marker-selector {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .marker-selector span {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #333;
+    }
+
+    .marker-white  { background: var(--c-white); border: 2px solid #bbb; }
+    .marker-yellow { background: var(--c-yellow); border: 2px solid #f57f17; }
+    .marker-red    { background: var(--c-red); border: 2px solid #b71c1c; }
+    .marker-red span { color: #fff; }
+    .marker-green  { background: var(--c-green); border: 2px solid #1b5e20; }
+    .marker-green span { color: #fff; }
+
+    .btn-nav {
+      flex: 2;
+      height: 48px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-comment {
+      flex: 1.2;
+      height: 48px;
+      background: #e8eaed;
+      color: var(--text);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid #dadce0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 4px;
+    }
+
+    .btn-comment.has-comment {
+      background: #e8f0fe;
+      color: var(--primary);
+      border-color: #aecbfa;
+    }
+
+    .meta-timestamps {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .meta-item { display: flex; align-items: center; gap: 4px; }
+    .meta-depart { color: #1557b0; }
+    .meta-complete { color: var(--c-green); font-weight: 700; }
+
+    .comment-display {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 8px;
+      font-size: 13px;
+      color: #374151;
+      border-left: 3px solid #9aa0a6;
+      word-break: break-word;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.show { display: flex; }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-box.report-box {
+      max-width: 550px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .modal-box.archive-box {
+      max-width: 440px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      padding: 16px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .report-textarea {
+      width: 100%;
+      flex: 1;
+      min-height: 180px;
+      border: 1.5px solid #dadce0;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.4;
+      background: #f8f9fa;
+      color: #202124;
+      resize: none;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    .report-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-action-modal {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-save-archive { background: #34a853; color: #fff; }
+    .btn-pdf { background: #c5221f; color: #fff; }
+    .btn-copy { background: var(--primary); color: #fff; }
+    .btn-cancel { background: #f1f3f4; color: var(--text); font-weight: 600; }
+    .btn-confirm { background: var(--danger); color: #fff; margin-top: 8px; }
+
+    /* Calendar Styling */
+    .calendar-controls {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .cal-select {
+      flex: 1;
+      padding: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      border: 1.5px solid #dadce0;
+      border-radius: 8px;
+      background: #fff;
+      outline: none;
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--subtext);
+      margin-bottom: 6px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 14px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      border: 1.5px solid transparent;
+    }
+
+    .cal-day.empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    .cal-day.has-report {
+      background: #e8f0fe;
+      border-color: #1a73e8;
+      color: #1a73e8;
+      font-weight: 800;
+    }
+
+    .cal-day.has-report::after {
+      content: '●';
+      font-size: 8px;
+      color: #1a73e8;
+      position: absolute;
+      bottom: 2px;
+    }
+
+    .cal-day.selected {
+      background: #1a73e8 !important;
+      color: #fff !important;
+    }
+
+    .cal-day.selected::after {
+      color: #fff !important;
+    }
+
+    .saved-report-preview {
+      background: #f1f3f4;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 13px;
+      max-height: 160px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-family: monospace;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ALWAYS-VISIBLE HEADER WITH 3 LARGE ACTION BUTTONS -->
+  <header>
+    <div class="header-top-row">
+      <div class="header-title">Доставка</div>
+    </div>
+    <div class="header-action-grid">
+      <button class="btn-top-bar btn-archive-top" onclick="openArchiveModal()">📅 Архив</button>
+      <button class="btn-top-bar btn-report-top" onclick="generateReport()">📋 Отчёт</button>
+      <button class="btn-top-bar btn-reset-top" onclick="askReset()">🗑️ Сброс</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="search-wrapper">
+      <input 
+        type="text" 
+        id="search-input" 
+        class="search-input" 
+        placeholder="Поиск (номер дома или улица)..." 
+        oninput="handleSearchInput()"
+        autocomplete="off"
+        autocorrect="off"
+      >
+      <button id="btn-clear" class="btn-clear-search" onclick="clearSearch()">✕</button>
+    </div>
+
+    <div class="legend-card">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--c-green); border-color:#1b5e20;"></div>
+        <span>1. Зелёный: Завершено (вверху списка)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--c-yellow); border-color:#f57f17;"></div>
+        <span>2. Жёлтый: Обслуживание / В процессе</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--c-red); border-color:#b71c1c;"></div>
+        <span>3. Красный: Не сделано / Отключено</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--c-white); border-color:#bbb;"></div>
+        <span>4. Белый (по умолчанию): Не начато (внизу списка)</span>
+      </div>
+    </div>
+
+    <div class="results-count" id="results-count"></div>
+    <div id="addresses-container"></div>
+  </div>
+
+  <!-- COLOR MODAL -->
+  <div class="modal-backdrop" id="color-modal">
+    <div class="modal-box">
+      <div class="modal-title">Выберите статус</div>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+        <button class="btn-action-modal" style="background:#fff; border:1.5px solid #dadce0; justify-content:flex-start;" onclick="applyColor('green')">
+          <div style="width:20px; height:20px; border-radius:50%; background:var(--c-green); margin-right:8px;"></div>
+          <span>Зелёный (Завершено)</span>
+        </button>
+        <button class="btn-action-modal" style="background:#fff; border:1.5px solid #dadce0; justify-content:flex-start;" onclick="applyColor('yellow')">
+          <div style="width:20px; height:20px; border-radius:50%; background:var(--c-yellow); margin-right:8px;"></div>
+          <span>Жёлтый (Обслуживание)</span>
+        </button>
+        <button class="btn-action-modal" style="background:#fff; border:1.5px solid #dadce0; justify-content:flex-start;" onclick="applyColor('red')">
+          <div style="width:20px; height:20px; border-radius:50%; background:var(--c-red); margin-right:8px;"></div>
+          <span>Красный (Не сделано/Отключено)</span>
+        </button>
+        <button class="btn-action-modal" style="background:#fff; border:1.5px solid #dadce0; justify-content:flex-start;" onclick="applyColor('white')">
+          <div style="width:20px; height:20px; border-radius:50%; background:var(--c-white); border:1px solid #bbb; margin-right:8px;"></div>
+          <span>Белый (Не начато)</span>
+        </button>
+      </div>
+      <button class="btn-action-modal btn-cancel" onclick="closeColorModal()">Отмена</button>
+    </div>
+  </div>
+
+  <!-- COMMENT MODAL -->
+  <div class="modal-backdrop" id="comment-modal">
+    <div class="modal-box">
+      <div class="modal-title">Заметка к адресу</div>
+      <textarea id="comment-input" style="width:100%; height:90px; padding:10px; border:1.5px solid #dadce0; border-radius:8px; margin-bottom:12px; outline:none; resize:none;" placeholder="Код двери, этаж, детали..."></textarea>
+      <button class="btn-action-modal" style="background:var(--primary); color:#fff; margin-bottom:8px;" onclick="saveComment()">Сохранить заметку</button>
+      <button class="btn-action-modal btn-cancel" onclick="closeCommentModal()">Отмена</button>
+    </div>
+  </div>
+
+  <!-- REPORT MODAL -->
+  <div class="modal-backdrop" id="report-modal">
+    <div class="modal-box report-box">
+      <div class="modal-title">Итоговый отчёт</div>
+      <textarea id="report-text" class="report-textarea" readonly></textarea>
+      <div class="report-actions">
+        <button class="btn-action-modal btn-save-archive" id="btn-save-archive" onclick="saveCurrentReportToArchive()">💾 Сохранить отчёт в архив</button>
+        <button class="btn-action-modal btn-pdf" id="btn-dl-pdf" onclick="downloadPdfFromCurrent()">📥 Скачать PDF файл</button>
+        <button class="btn-action-modal btn-copy" id="btn-copy-report" onclick="copyReport()">Скопировать текст</button>
+        <button class="btn-action-modal btn-cancel" onclick="closeReportModal()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE MODAL WITH CALENDAR -->
+  <div class="modal-backdrop" id="archive-modal">
+    <div class="modal-box archive-box">
+      <div class="modal-title">Архив отчётов</div>
+      
+      <div class="calendar-controls">
+        <select id="cal-month" class="cal-select" onchange="renderCalendar()"></select>
+        <select id="cal-year" class="cal-select" onchange="renderCalendar()"></select>
+      </div>
+
+      <div class="calendar-weekdays">
+        <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+      </div>
+      <div id="calendar-grid" class="calendar-grid"></div>
+
+      <div id="archive-report-area" style="display:none; flex-direction:column; flex:1;">
+        <div style="font-weight:700; font-size:14px; margin-bottom:6px;" id="selected-date-label"></div>
+        <div id="archive-preview" class="saved-report-preview"></div>
+        <div style="display:flex; gap:6px; margin-bottom:8px;">
+          <button class="btn-action-modal btn-pdf" style="flex:1;" onclick="downloadArchivePdf()">PDF</button>
+          <button class="btn-action-modal btn-copy" style="flex:1;" onclick="copyArchiveReport()">Копировать</button>
+        </div>
+      </div>
+
+      <button class="btn-action-modal btn-cancel" style="margin-top:auto;" onclick="closeArchiveModal()">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- RESET MODAL -->
+  <div class="modal-backdrop" id="reset-modal">
+    <div class="modal-box">
+      <div class="modal-title">Сбросить всё?</div>
+      <div style="font-size:14px; color:var(--subtext); margin-bottom:16px;">
+        Все адреса вернутся в белый цвет, удалятся заметки и время. Архив сохранённых отчётов останется.
+      </div>
+      <button class="btn-action-modal btn-cancel" onclick="closeResetModal()">Отмена</button>
+      <button class="btn-action-modal btn-confirm" onclick="confirmReset()">Да, сбросить всё</button>
+    </div>
+  </div>
+
+  <script>
+    const rawStops = [
+      "200 Tillary St, Brooklyn, NY 11201", "810 Flushing Ave, Brooklyn, NY 11206", "1125 Myrtle Ave, Brooklyn, NY 11206",
+      "725 Evergreen Ave, Brooklyn, NY 11207", "405 Williams Ave, Brooklyn, NY 11207", "420 Georgia Ave, Brooklyn, NY 11207",
+      "116 Covert St, Brooklyn, NY 11207", "710 Dumont Ave, Brooklyn, NY 11207", "840 Hegeman Ave, Brooklyn, NY 11207",
+      "463 Livonia Ave, Brooklyn, NY 11207", "115 Logan St, Brooklyn, NY 11208", "263 Shepherd Ave, Brooklyn, NY 11208",
+      "903 Drew St, Brooklyn, NY 11208", "901 Drew St, Brooklyn, NY 11208", "902 Drew St, Brooklyn, NY 11208",
+      "922 Forbell St, Brooklyn, NY 11208", "1101 Forbell St, Brooklyn, NY 11208", "196 S 1st St, Brooklyn, NY 11211",
+      "179 Woodpoint Rd, Brooklyn, NY 11211", "566 Grand St, Brooklyn, NY 11211", "330 Morgan Ave, Brooklyn, NY 11211",
+      "239 S 1st St, Brooklyn, NY 11211", "233 S 2nd St, Brooklyn, NY 11211", "232 S 1st St, Brooklyn, NY 11211",
+      "228 S 1st St, Brooklyn, NY 11211", "208 S 1st St, Brooklyn, NY 11211", "195 Roebling St, Brooklyn, NY 11211",
+      "202 S 1st St, Brooklyn, NY 11211", "385 Union Ave, Brooklyn, NY 11211", "375 Union Ave, Brooklyn, NY 11211",
+      "209 S 3rd St, Brooklyn, NY 11211", "215 Roebling St, Brooklyn, NY 11211", "251 S 3rd St, Brooklyn, NY 11211",
+      "207 N 5th St, Brooklyn, NY 11211", "245 Manhattan Ave, Brooklyn, NY 11211", "390 S 2nd St, Brooklyn, NY 11211",
+      "277 1st St, Brooklyn, NY 11215", "390 Nostrand Ave, Brooklyn, NY 11216", "322 Gates Ave, Brooklyn, NY 11216",
+      "475 Atlantic Ave, Brooklyn, NY 11217", "85 Palmetto St, Brooklyn, NY 11221", "757 Bushwick Ave, Brooklyn, NY 11221",
+      "1004 Gates Ave, Brooklyn, NY 11221", "1098 Madison St, Brooklyn, NY 11221", "1175 Gates Ave, Brooklyn, NY 11221",
+      "1262 Broadway, Brooklyn, NY 11221", "330 Wilson Ave, Brooklyn, NY 11221", "138 Bleecker St, Brooklyn, NY 11221",
+      "1103 Gates Ave, Brooklyn, NY 11221", "900 Willoughby Ave, Brooklyn, NY 11221", "120 Menahan St, Brooklyn, NY 11221",
+      "160 Menahan St, Brooklyn, NY 11221", "140 Menahan St, Brooklyn, NY 11221", "146 Clay St, Brooklyn, NY 11222",
+      "190 Green St, Brooklyn, NY 11222", "216 Calyer St, Brooklyn, NY 11222", "100 Engert Ave, Brooklyn, NY 11222",
+      "168 Franklin St, Brooklyn, NY 11222", "12 Monitor St, Brooklyn, NY 11222", "247 Driggs Ave, Brooklyn, NY 11222",
+      "405 Van Brunt St, Brooklyn, NY 11231", "Brooklyn, NY 11237", "100 S 4th St, Brooklyn, NY 11249",
+      "53 Broadway, Brooklyn, NY 11249", "203 Berry St, Brooklyn, NY 11249", "65 N 6th St, Brooklyn, NY 11249",
+      "475 Kent Ave, Brooklyn, NY 11249"
+    ];
+
+    const stops = rawStops.map((addr, idx) => ({ id: idx, address: addr }));
+
+    let searchQuery = '';
+    let selectedStopId = null;
+    let commentStopId = null;
+    let stateData = JSON.parse(localStorage.getItem('route_color_data') || '{}');
+    let archiveData = JSON.parse(localStorage.getItem('route_archive_reports') || '{}');
+
+    function getNowFormatted() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('ru-RU');
+      const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+      return `${dateStr} ${timeStr}`;
+    }
+
+    function getTodayKey() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getSortPriority(color) {
+      if (color === 'green') return 1;
+      if (color === 'yellow') return 2;
+      if (color === 'red') return 3;
+      return 4;
+    }
+
+    function renderList() {
+      const container = document.getElementById('addresses-container');
+      const countEl = document.getElementById('results-count');
+      container.innerHTML = '';
+
+      let items = [...stops];
+
+      if (searchQuery.trim()) {
+        const query = searchQuery.trim().toLowerCase();
+        items = items.filter(s => s.address.toLowerCase().includes(query));
+      }
+
+      countEl.innerText = `Найдено адресов: ${items.length} из ${stops.length}`;
+
+      if (items.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 40px 10px; color:#5f6368; font-size:15px;">Ничего не найдено</div>`;
+        return;
+      }
+
+      items.sort((a, b) => {
+        const colorA = (stateData[a.id] && stateData[a.id].color) || 'white';
+        const colorB = (stateData[b.id] && stateData[b.id].color) || 'white';
+        const diff = getSortPriority(colorA) - getSortPriority(colorB);
+        if (diff !== 0) return diff;
+        return a.id - b.id;
+      });
+
+      items.forEach((s, i) => {
+        const itemData = stateData[s.id] || { color: 'white', completedAt: null, departedAt: null, comment: '' };
+        const color = itemData.color || 'white';
+        const completedAt = itemData.completedAt;
+        const departedAt = itemData.departedAt;
+        const comment = itemData.comment || '';
+
+        let timestampsHtml = '';
+        if (departedAt || (color === 'green' && completedAt)) {
+          timestampsHtml = `
+            <div class="meta-timestamps">
+              ${departedAt ? `<div class="meta-item meta-depart">🚗 Выезд: ${departedAt}</div>` : ''}
+              ${(color === 'green' && completedAt) ? `<div class="meta-item meta-complete">✓ Завершено: ${completedAt}</div>` : ''}
+            </div>
+          `;
+        }
+
+        const commentDisplayHtml = comment 
+          ? `<div class="comment-display">📝 <strong>Заметка:</strong> ${escapeHtml(comment)}</div>` 
+          : '';
+
+        const card = document.createElement('div');
+        card.className = `addr-card status-${color}`;
+        card.innerHTML = `
+          <div class="addr-header">
+            <span class="addr-index">${i + 1}.</span>
+            <span class="addr-text">${s.address}</span>
+          </div>
+          <div class="card-bottom-row">
+            <div class="marker-selector marker-${color}" onclick="openColorModal(${s.id})">
+              <span>Цвет</span>
+            </div>
+            <button class="btn-nav" onclick="navigateTo(${s.id}, '${encodeURIComponent(s.address)}')">Маршрут</button>
+            <button class="btn-comment ${comment ? 'has-comment' : ''}" onclick="openCommentModal(${s.id})">
+              ${comment ? 'Изменить' : '+ Заметка'}
+            </button>
+          </div>
+          ${timestampsHtml}
+          ${commentDisplayHtml}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    function navigateTo(id, encodedAddress) {
+      const existing = stateData[id] || { color: 'white', completedAt: null, comment: '' };
+      stateData[id] = { ...existing, departedAt: getNowFormatted() };
+      localStorage.setItem('route_color_data', JSON.stringify(stateData));
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`, '_blank');
+      renderList();
+    }
+
+    function handleSearchInput() {
+      const input = document.getElementById('search-input');
+      searchQuery = input.value;
+      document.getElementById('btn-clear').style.display = searchQuery ? 'flex' : 'none';
+      renderList();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('search-input');
+      input.value = '';
+      searchQuery = '';
+      document.getElementById('btn-clear').style.display = 'none';
+      input.focus();
+      renderList();
+    }
+
+    function openColorModal(id) {
+      selectedStopId = id;
+      document.getElementById('color-modal').classList.add('show');
+    }
+
+    function closeColorModal() {
+      selectedStopId = null;
+      document.getElementById('color-modal').classList.remove('show');
+    }
+
+    function applyColor(color) {
+      if (selectedStopId === null) return;
+      const existing = stateData[selectedStopId] || { color: 'white', comment: '', departedAt: null };
+      let completedAt = null;
+      if (color === 'green') {
+        completedAt = getNowFormatted();
+      }
+      stateData[selectedStopId] = { ...existing, color: color, completedAt: completedAt };
+      localStorage.setItem('route_color_data', JSON.stringify(stateData));
+      closeColorModal();
+      clearSearch();
+    }
+
+    function openCommentModal(id) {
+      commentStopId = id;
+      document.getElementById('comment-input').value = (stateData[id] && stateData[id].comment) || '';
+      document.getElementById('comment-modal').classList.add('show');
+    }
+
+    function closeCommentModal() {
+      commentStopId = null;
+      document.getElementById('comment-modal').classList.remove('show');
+    }
+
+    function saveComment() {
+      if (commentStopId === null) return;
+      const text = document.getElementById('comment-input').value.trim();
+      const existing = stateData[commentStopId] || { color: 'white', completedAt: null, departedAt: null };
+      stateData[commentStopId] = { ...existing, comment: text };
+      localStorage.setItem('route_color_data', JSON.stringify(stateData));
+      closeCommentModal();
+      renderList();
+    }
+
+    const statusLabels = {
+      green: 'Завершено',
+      yellow: 'Обслуживание / В процессе',
+      red: 'Не сделано / Отключено'
+    };
+
+    function getActiveStops() {
+      return stops.filter(s => {
+        const data = stateData[s.id];
+        return data && (data.color === 'yellow' || data.color === 'red' || data.color === 'green');
+      });
+    }
+
+    function generateReport() {
+      const activeStops = getActiveStops();
+      if (activeStops.length === 0) {
+        alert("Нет обработанных адресов (зелёных, жёлтых или красных).");
+        return;
+      }
+
+      let reportText = `ОТЧЁТ ПО ДОСТАВКЕ\n`;
+      reportText += `Дата формирования: ${getNowFormatted()}\n`;
+      reportText += `Всего обработано адресов: ${activeStops.length}\n`;
+      reportText += `----------------------------------------\n\n`;
+
+      activeStops.forEach((s, idx) => {
+        const data = stateData[s.id];
+        const isGreen = data.color === 'green';
+        const completionStr = (isGreen && data.completedAt) ? data.completedAt : 'Не завершено';
+
+        reportText += `${idx + 1}. Адрес: ${s.address}\n`;
+        reportText += `   Статус: ${statusLabels[data.color] || data.color}\n`;
+        reportText += `   Время выезда (Маршрут): ${data.departedAt || 'Не зафиксировано'}\n`;
+        reportText += `   Дата и время завершения: ${completionStr}\n`;
+        reportText += `   Заметка: ${data.comment || 'Нет'}\n\n`;
+      });
+
+      document.getElementById('report-text').value = reportText;
+      document.getElementById('btn-copy-report').innerText = 'Скопировать текст';
+      document.getElementById('btn-save-archive').innerText = '💾 Сохранить отчёт в архив';
+      document.getElementById('report-modal').classList.add('show');
+    }
+
+    function closeReportModal() {
+      document.getElementById('report-modal').classList.remove('show');
+    }
+
+    function copyReport() {
+      const textarea = document.getElementById('report-text');
+      textarea.select();
+      navigator.clipboard.writeText(textarea.value).then(() => {
+        document.getElementById('btn-copy-report').innerText = 'Скопировано! ✓';
+        setTimeout(() => { document.getElementById('btn-copy-report').innerText = 'Скопировать текст'; }, 2000);
+      });
+    }
+
+    function saveCurrentReportToArchive() {
+      const text = document.getElementById('report-text').value;
+      const today = getTodayKey();
+      archiveData[today] = {
+        dateStr: getNowFormatted(),
+        content: text,
+        activeStops: getActiveStops().map(s => ({
+          address: s.address,
+          ...stateData[s.id]
+        }))
+      };
+      localStorage.setItem('route_archive_reports', JSON.stringify(archiveData));
+      document.getElementById('btn-save-archive').innerText = 'Сохранено в архив! ✓';
+      setTimeout(() => { document.getElementById('btn-save-archive').innerText = '💾 Сохранить отчёт в архив'; }, 2000);
+    }
+
+    function downloadPdfFromCurrent() {
+      const activeStops = getActiveStops();
+      exportPdfFromList(activeStops, getNowFormatted(), `Otchet_Dostavka_${new Date().toISOString().slice(0, 10)}.pdf`);
+    }
+
+    /* Core Canvas-to-PDF Generator */
+    function exportPdfFromList(items, dateTitle, filename) {
+      if (!items || items.length === 0) return;
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const margin = 14;
+        const contentWidth = pageWidth - (margin * 2);
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const scale = 2;
+        const canvasWidth = 800;
+
+        let estHeight = 160;
+        items.forEach(s => {
+          estHeight += s.comment ? 160 : 130;
+        });
+
+        canvas.width = canvasWidth * scale;
+        canvas.height = estHeight * scale;
+        ctx.scale(scale, scale);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvasWidth, estHeight);
+
+        ctx.fillStyle = '#1a73e8';
+        ctx.font = 'bold 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText('Отчёт по доставке', 20, 45);
+
+        ctx.fillStyle = '#5f6368';
+        ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText(`Дата: ${dateTitle}`, 20, 75);
+        ctx.fillText(`Всего адресов: ${items.length}`, 20, 98);
+
+        ctx.strokeStyle = '#dadce0';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(20, 115);
+        ctx.lineTo(canvasWidth - 20, 115);
+        ctx.stroke();
+
+        let y = 135;
+
+        items.forEach((s, idx) => {
+          const isGreen = s.color === 'green';
+          const completionStr = (isGreen && s.completedAt) ? s.completedAt : 'Не завершено';
+          const cardH = s.comment ? 135 : 105;
+
+          ctx.fillStyle = '#f8f9fa';
+          ctx.strokeStyle = '#e0e0e0';
+          ctx.lineWidth = 1;
+          ctx.fillRect(20, y, canvasWidth - 40, cardH);
+          ctx.strokeRect(20, y, canvasWidth - 40, cardH);
+
+          let barColor = '#fbc02d';
+          if (s.color === 'green') barColor = '#2e7d32';
+          if (s.color === 'red') barColor = '#e53935';
+          ctx.fillStyle = barColor;
+          ctx.fillRect(20, y, 6, cardH);
+
+          ctx.fillStyle = '#202124';
+          ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.fillText(`${idx + 1}. ${s.address}`, 36, y + 26);
+
+          ctx.fillStyle = '#374151';
+          ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.fillText(`Статус: ${statusLabels[s.color] || s.color}`, 36, y + 50);
+          ctx.fillText(`Выезд (Маршрут): ${s.departedAt || 'Не зафиксировано'}`, 36, y + 72);
+          ctx.fillText(`Завершение: ${completionStr}`, 36, y + 94);
+
+          if (s.comment) {
+            ctx.fillStyle = '#1557b0';
+            ctx.fillText(`Заметка: ${s.comment}`, 36, y + 118);
+          }
+
+          y += cardH + 14;
+        });
+
+        const trimmedCanvas = document.createElement('canvas');
+        trimmedCanvas.width = canvas.width;
+        trimmedCanvas.height = (y + 20) * scale;
+        const trimmedCtx = trimmedCanvas.getContext('2d');
+        trimmedCtx.drawImage(canvas, 0, 0);
+
+        const imgData = trimmedCanvas.toDataURL('image/jpeg', 0.95);
+        const pdfImgHeight = ((y + 20) * contentWidth) / canvasWidth;
+
+        let heightLeft = pdfImgHeight;
+        let position = margin;
+
+        pdf.addImage(imgData, 'JPEG', margin, position, contentWidth, pdfImgHeight);
+        heightLeft -= (pageHeight - (margin * 2));
+
+        while (heightLeft > 0) {
+          position = heightLeft - pdfImgHeight + margin;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', margin, position, contentWidth, pdfImgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        pdf.save(filename);
+      } catch (err) {
+        alert('Ошибка при сохранении PDF: ' + err.message);
+      }
+    }
+
+    /* Archive & Calendar Logic */
+    const monthNames = [
+      "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+      "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    ];
+
+    let currentArchiveKey = null;
+
+    function openArchiveModal() {
+      initCalendarSelectors();
+      renderCalendar();
+      document.getElementById('archive-modal').classList.add('show');
+    }
+
+    function closeArchiveModal() {
+      document.getElementById('archive-modal').classList.remove('show');
+    }
+
+    function initCalendarSelectors() {
+      const monthSel = document.getElementById('cal-month');
+      const yearSel = document.getElementById('cal-year');
+
+      if (monthSel.options.length === 0) {
+        monthNames.forEach((name, i) => {
+          const opt = document.createElement('option');
+          opt.value = i;
+          opt.innerText = name;
+          monthSel.appendChild(opt);
+        });
+
+        const curYear = new Date().getFullYear();
+        for (let y = curYear - 2; y <= curYear + 2; y++) {
+          const opt = document.createElement('option');
+          opt.value = y;
+          opt.innerText = y;
+          yearSel.appendChild(opt);
+        }
+
+        const now = new Date();
+        monthSel.value = now.getMonth();
+        yearSel.value = now.getFullYear();
+      }
+    }
+
+    function renderCalendar() {
+      const month = parseInt(document.getElementById('cal-month').value);
+      const year = parseInt(document.getElementById('cal-year').value);
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+      hideArchivePreview();
+
+      const firstDay = new Date(year, month, 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let startOffset = firstDay.getDay() - 1;
+      if (startOffset === -1) startOffset = 6;
+
+      for (let i = 0; i < startOffset; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'cal-day empty';
+        grid.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day';
+        cell.innerText = day;
+
+        const mStr = String(month + 1).padStart(2, '0');
+        const dStr = String(day).padStart(2, '0');
+        const key = `${year}-${mStr}-${dStr}`;
+
+        if (archiveData[key]) {
+          cell.classList.add('has-report');
+        }
+
+        cell.onclick = () => selectArchiveDay(key, cell);
+        grid.appendChild(cell);
+      }
+    }
+
+    function selectArchiveDay(key, cellElement) {
+      document.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected'));
+      cellElement.classList.add('selected');
+      currentArchiveKey = key;
+
+      const area = document.getElementById('archive-report-area');
+      const label = document.getElementById('selected-date-label');
+      const preview = document.getElementById('archive-preview');
+
+      area.style.display = 'flex';
+      const parts = key.split('-');
+      label.innerText = `Отчёт за ${parts[2]}.${parts[1]}.${parts[0]}:`;
+
+      if (archiveData[key]) {
+        preview.innerText = archiveData[key].content;
+      } else {
+        preview.innerText = 'В этот день отчёт не был сохранён.';
+      }
+    }
+
+    function hideArchivePreview() {
+      document.getElementById('archive-report-area').style.display = 'none';
+      currentArchiveKey = null;
+    }
+
+    function downloadArchivePdf() {
+      if (!currentArchiveKey || !archiveData[currentArchiveKey]) {
+        alert("Нет сохранённого отчёта за этот день.");
+        return;
+      }
+      const data = archiveData[currentArchiveKey];
+      exportPdfFromList(data.activeStops || [], data.dateStr, `Otchet_Arhiv_${currentArchiveKey}.pdf`);
+    }
+
+    function copyArchiveReport() {
+      if (!currentArchiveKey || !archiveData[currentArchiveKey]) {
+        alert("Нет отчёта для копирования.");
+        return;
+      }
+      navigator.clipboard.writeText(archiveData[currentArchiveKey].content).then(() => {
+        alert("Отчёт из архива скопирован!");
+      });
+    }
+
+    /* Reset Logic */
+    function askReset() {
+      document.getElementById('reset-modal').classList.add('show');
+    }
+
+    function closeResetModal() {
+      document.getElementById('reset-modal').classList.remove('show');
+    }
+
+    function confirmReset() {
+      stateData = {};
+      localStorage.removeItem('route_color_data');
+      closeResetModal();
+      clearSearch();
+    }
+
+    renderList();
+  </script>
+</body>
+</html>
